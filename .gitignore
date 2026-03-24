@@ -1,0 +1,35 @@
+# Build outputs
+/bin/
+/obj/
+
+# User secrets and sensitive data
+appsettings.Development.json
+appsettings.Local.json
+*.secrets.json
+secrets.json
+firebase-service-account.json
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
