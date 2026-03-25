@@ -8,6 +8,7 @@ appsettings.Local.json
 *.secrets.json
 secrets.json
 firebase-service-account.json
+appsettings.json
 
 # IDE files
 .vs/
