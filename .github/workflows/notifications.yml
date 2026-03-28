@@ -1,0 +1,59 @@
+name: Notifications
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+      
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish
+      
+      - name: Discord Success Notification
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: ".NET Build and Test Successful"
+          description: |
+            **Project:** ${{ github.repository }}
+            **Commit:** `${{ github.sha }}`
+            **Author:** ${{ github.actor }}
+            **Branch:** ${{ github.ref_name }}
+          color: 0x00ff00
+
+      - name: Discord Failure Notification
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: ".NET Build or Test Failed"
+          description: |
+            **Project:** ${{ github.repository }}
+            **Failed Commit:** `${{ github.sha }}`
+            **Author:** ${{ github.actor }}
+            **Branch:** ${{ github.ref_name }}
+            
+            🔗 [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          color: 0xff0000
