@@ -33,8 +33,8 @@ jobs:
       - name: Health check verification
         run: |
           echo "🏥 Verifying API health..."
-          curl -f http://localhost:5000/health || exit 1
-          curl -f http://localhost:5000/api/RedisTest/health || exit 1
+          curl -f http://localhost:5082 || exit 1
+          curl -f http://localhost:5082/api/RedisTest/health || exit 1
       
       - name: Install Newman
         if: success()
