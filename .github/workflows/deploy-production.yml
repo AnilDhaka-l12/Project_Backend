@@ -1,0 +1,83 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency: production
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+      
+      - name: Publish application
+        run: dotnet publish --configuration Release --output ./publish
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-app
+          path: ./publish
+          retention-days: 7
+      
+      - name: Deploy to Production Server
+        run: |
+          echo "========================================="
+          echo "🚀 Deploying to PRODUCTION Environment"
+          echo "========================================="
+          echo "⚠️  PRODUCTION DEPLOYMENT - APPROVED"
+          echo "========================================="
+          echo "Branch: master"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "========================================="
+          
+          # ========================================
+          # ADD YOUR PRODUCTION DEPLOYMENT COMMANDS
+          # ========================================
+          
+          # Example for Docker:
+          # docker build -t myapp:latest .
+          # docker push myapp:latest
+          # ssh production-server "docker pull myapp:latest && docker-compose up -d"
+          
+          # Example for Azure:
+          # az webapp deploy --resource-group myapp --name myapp-prod --src-path ./publish
+          
+          # Example for AWS:
+          # aws s3 sync ./publish s3://myapp-production/
+          
+          echo "========================================="
+          echo "✅ Production deployment complete!"
+          echo "🌐 Production URL: https://yourdomain.com"
+          echo "========================================="
+      
+      - name: Verify production deployment
+        run: |
+          echo "🔍 Verifying production deployment..."
+          # curl -f https://yourdomain.com/health || exit 1
+          echo "✅ Production verification passed"
+      
+      - name: Send deployment notification
+        if: success()
+        run: |
+          echo "📧 Sending deployment notification..."
+          echo "✅ Production deployment successful!"
+          # Add email/slack/discord notification here

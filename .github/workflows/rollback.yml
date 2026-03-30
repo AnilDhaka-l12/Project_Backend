@@ -1,0 +1,72 @@
+name: 07 - Rollback Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to rollback to (commit SHA)'
+        required: true
+        type: string
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Get current version
+        run: |
+          echo "Current version: $(cat current-version.txt)"
+          echo "Rolling back to: ${{ inputs.version }}"
+      
+      - name: Deploy previous version
+        run: |
+          echo "🔄 Rolling back ${{ inputs.environment }} to ${{ inputs.version }}..."
+          # Deploy the specific version
+          git checkout ${{ inputs.version }}
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish --configuration Release --output ./publish
+          # Add deployment command here
+      
+      - name: Verify rollback
+        run: |
+          echo "🏥 Verifying rollback..."
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            curl -f https://yourdomain.com/health || exit 1
+          else
+            curl -f https://staging.yourdomain.com/health || exit 1
+          fi
+      
+      - name: Create rollback report
+        run: |
+          cat << EOF > rollback-report.md
+          ## Rollback Report
+          
+          - **Environment:** ${{ inputs.environment }}
+          - **Rolled back to:** ${{ inputs.version }}
+          - **Previous version:** $(cat current-version.txt)
+          - **Time:** $(date)
+          - **Triggered by:** ${{ github.actor }}
+          EOF
+      
+      - name: Upload rollback report
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-report
+          path: rollback-report.md
+          retention-days: 90
+      
+      - name: Notify rollback
+        run: |
+          echo "⚠️ Rollback to ${{ inputs.version }} completed on ${{ inputs.environment }}"
+          # Add email/slack notification here

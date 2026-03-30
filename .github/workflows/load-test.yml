@@ -1,0 +1,136 @@
+name: Load Testing
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 2 * * 0'  # Run every Sunday at 2 AM
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Build application
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish --configuration Release --output ./publish
+      
+      - name: Start application
+        run: |
+          dotnet ./publish/projectBackend.dll &
+          sleep 15
+      
+      - name: Install k6
+        run: |
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+      
+      - name: Run smoke test (light load)
+        run: |
+          k6 run - <<EOF
+          import http from 'k6/http';
+          import { sleep, check } from 'k6';
+          
+          export const options = {
+            vus: 5,
+            duration: '10s',
+          };
+          
+          export default function () {
+            const res = http.get('http://localhost:5000/health');
+            check(res, {
+              'status is 200': (r) => r.status === 200,
+            });
+            sleep(1);
+          }
+          EOF
+      
+      - name: Run load test
+        run: |
+          k6 run - <<EOF
+          import http from 'k6/http';
+          import { sleep, check } from 'k6';
+          
+          export const options = {
+            stages: [
+              { duration: '30s', target: 20 },
+              { duration: '1m', target: 50 },
+              { duration: '30s', target: 0 },
+            ],
+            thresholds: {
+              http_req_duration: ['p(95)<500'],
+              http_req_failed: ['rate<0.01'],
+            },
+          };
+          
+          export default function () {
+            const res = http.get('http://localhost:5000/health');
+            check(res, {
+              'status is 200': (r) => r.status === 200,
+              'response time < 200ms': (r) => r.timings.duration < 200,
+            });
+            sleep(1);
+          }
+          EOF
+      
+      - name: Run API load test (Redis endpoints)
+        run: |
+          k6 run - <<EOF
+          import http from 'k6/http';
+          import { sleep, check } from 'k6';
+          
+          export const options = {
+            vus: 10,
+            duration: '30s',
+          };
+          
+          export default function () {
+            const token = 'test-token-' + __VU + '-' + __ITER;
+            const payload = JSON.stringify({
+              token: token,
+              expiryHours: 1
+            });
+            
+            const headers = {
+              'Content-Type': 'application/json',
+            };
+            
+            const storeRes = http.post('http://localhost:5000/api/RedisTest/store', payload, { headers });
+            check(storeRes, {
+              'store status is 200': (r) => r.status === 200,
+            });
+            
+            const checkRes = http.get(`http://localhost:5000/api/RedisTest/check/${token}`);
+            check(checkRes, {
+              'check status is 200': (r) => r.status === 200,
+            });
+            
+            sleep(1);
+          }
+          EOF
+      
+      - name: Upload load test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results
+          path: |
+            *.json
+            *.html
+          retention-days: 30
+      
+      - name: Notify on load test failure
+        if: failure()
+        run: |
+          echo "❌ Load test failed! Performance thresholds not met."

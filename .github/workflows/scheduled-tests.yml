@@ -1,0 +1,29 @@
+name: Scheduled Tests on Staging
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 2 AM daily
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  test-staging:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Run tests against staging
+        run: |
+          echo "🧪 Running tests against staging environment..."
+          dotnet test --filter "Category=Integration" --environment STAGING_URL=https://staging.yourdomain.com
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "⚠️ Staging tests failed! Check the logs."
+          # Add notification here
