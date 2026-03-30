@@ -9,7 +9,7 @@ using projectBackend.Attributes;
 using projectBackend.Model;
 using projectBackend.Model.Entities;
 
-namespace projectBackend.Middleware;
+namespace projectBackend.Middlewares;
 
 public class AdminLoggingMiddleware
 {

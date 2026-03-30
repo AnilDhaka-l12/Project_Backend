@@ -4,6 +4,7 @@ using projectBackend.Attributes;
 using projectBackend.Model.Entities;
 using projectBackend.Model.RequestModel;
 using projectBackend.Services.IServices;
+using FluentValidation;
 
 namespace projectBackend.Controllers;
 
@@ -12,14 +13,17 @@ namespace projectBackend.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IValidator<UserRequestModel> _userValidator;
     
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, IValidator<UserRequestModel> userValidator)
     {
         _userService = userService;
+        _userValidator = userValidator;
     }
     
     [HttpGet]
     [AdminAuthorize]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> GetUsers()
     {
         var users = await _userService.GetAllUsersAsync();
@@ -28,6 +32,7 @@ public class UsersController : ControllerBase
     
     [HttpGet("{id}")]
     [AdminAuthorize]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> GetUser(string id)
     {
         var user = await _userService.GetUserByIdAsync(id);
@@ -39,6 +44,7 @@ public class UsersController : ControllerBase
     
     [HttpGet("email/{email}")]
     [AdminAuthorize]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> GetUserByEmail(string email)
     {
         var user = await _userService.GetUserByEmailAsync(email);
@@ -50,6 +56,7 @@ public class UsersController : ControllerBase
     
     [HttpGet("organization/{organization}")]
     [AdminAuthorize]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> GetUsersByOrganization(string organization)
     {
         var users = await _userService.GetUsersByOrganizationAsync(organization);
@@ -58,6 +65,7 @@ public class UsersController : ControllerBase
     
     [HttpGet("active")]
     [AdminAuthorize]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> GetActiveUsers()
     {
         var users = await _userService.GetActiveUsersAsync();
@@ -68,9 +76,18 @@ public class UsersController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> CreateUser([FromBody] UserRequestModel request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var validationResult = await _userValidator.ValidateAsync(request);
         
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(x => x.PropertyName)
+                .ToDictionary(
+                    g => char.ToLower(g.Key[0]) + g.Key.Substring(1),
+                    g => g.Select(x => x.ErrorMessage).ToArray()
+                );
+            return BadRequest(errors);
+        }
         try
         {
             var user = new User
@@ -99,6 +116,7 @@ public class UsersController : ControllerBase
     
     [HttpPut("{id}")]
     [AllowAnonymous]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] UserRequestModel request)
     {
         if (!ModelState.IsValid)
@@ -133,6 +151,7 @@ public class UsersController : ControllerBase
     
     [HttpDelete("{id}")]
     [AdminAuthorize]
+    [CheckJwtBlacklist]
     public async Task<IActionResult> DeleteUser(string id)
     {
         var deleted = await _userService.DeleteUserAsync(id);

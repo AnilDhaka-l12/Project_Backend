@@ -6,17 +6,20 @@ using Google.Cloud.Firestore;
 using Microsoft.IdentityModel.Tokens;
 using projectBackend.Services.IServices;
 
+
 namespace projectBackend.Services;
 
 public class AuthService : IAuthService
 {
     private readonly FirestoreDb _firestoreDb;
     private readonly IConfiguration _configuration;
+    private readonly IRedisCacheService _redisCache;
     
-    public AuthService(FirestoreDb firestoreDb, IConfiguration configuration)
+    public AuthService(FirestoreDb firestoreDb, IConfiguration configuration, IRedisCacheService redisCache)
     {
         _firestoreDb = firestoreDb;
         _configuration = configuration;
+        _redisCache = redisCache;
     }
     
 public async Task<string> LoginAsync(string username, string password)
@@ -67,6 +70,30 @@ public async Task<string> LoginAsync(string username, string password)
     return token;
 }
     
+    public async Task<bool> LogoutAsync(string token)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+            var expiry = jwtToken.ValidTo;
+            var timeRemaining = expiry - DateTime.UtcNow;
+            
+            if (timeRemaining > TimeSpan.Zero)
+            {
+                await _redisCache.StoreTokenAsync(token, timeRemaining);
+                return true;
+            }
+            
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+
 private string GenerateJwtToken(string adminId, string username, string role)
 {
     var key = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not found");

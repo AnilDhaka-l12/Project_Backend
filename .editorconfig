@@ -1,0 +1,31 @@
+# .editorconfig
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.cs]
+# Indentation and spacing
+csharp_indent_braces = false
+csharp_indent_switch_labels = true
+csharp_new_line_before_open_brace = all
+
+# Using directives
+csharp_using_directive_placement = outside_namespace
+
+# Modality preferences
+csharp_prefer_static_local_function = true
+csharp_preferred_modifier_order = public,private,protected,internal,static,readonly
+
+# Naming rules
+dotnet_naming_rule.interface_should_start_with_i.severity = warning
+dotnet_naming_rule.interface_should_start_with_i.symbols = interface
+dotnet_naming_rule.interface_should_start_with_i.style = i_prefix
+
+dotnet_naming_symbols.interface.applicable_kinds = interface
+dotnet_naming_style.i_prefix.capitalization = pascal_case
+dotnet_naming_style.i_prefix.required_prefix = I

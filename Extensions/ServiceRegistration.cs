@@ -1,30 +1,38 @@
-using Microsoft.Extensions.DependencyInjection;
-using projectBackend.Repositories;
-using projectBackend.Repositories.Interfaces;
-using projectBackend.Services;
-using projectBackend.Services.IServices;
-using projectBackend.Config.MailKit;  // Add this
+using FluentValidation;
+using projectBackend.Config.Firebase;
+using projectBackend.Config.Redis;
+using projectBackend.Validators;
 
 namespace projectBackend.Extensions;
 
-public static class ServiceRegistration
+public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterServices(this IServiceCollection services)
+    public static IServiceCollection AddAllServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register Repositories
-        services.AddScoped<IUserRepository, UserRepository>();
+        // Register FluentValidation Validators
+        services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
         
-        // Register Services
-        services.AddScoped<IUserService, UserService>();
+        // Register Redis
+        services.AddRedisServices(configuration);
         
-        // Register Auth Service
-        services.AddScoped<IAuthService, AuthService>();
-
-        // Register the mail infrastructure (initialization)
-        services.AddSingleton<MailService>(); // Singleton because it holds connection
-            
-        // Register the business logic service
-        services.AddScoped<IEmailService, EmailService>();
+        // Register Controllers
+        services.AddControllers();
+        
+        // Register Swagger
+        services.RegisterSwagger();
+        
+        // Register CORS
+        services.RegisterCors();
+        
+        // Register JWT Authentication
+        services.AddJwtAuthentication(configuration);
+        
+        // Register Firebase Firestore
+        services.RegisterFirebase(configuration);
+        
+        // Register Repositories and Services
+        services.RegisterRepositories();
+        services.RegisterServices();
         
         return services;
     }

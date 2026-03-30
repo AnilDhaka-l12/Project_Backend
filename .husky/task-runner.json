@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "format": {
+      "command": "dotnet",
+      "args": ["format"],
+      "hooks": ["pre-commit"]
+    },
+    "test": {
+      "command": "dotnet",
+      "args": ["test", "--no-build"],
+      "hooks": ["pre-push"]
+    }
+  }
+}
