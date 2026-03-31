@@ -13,7 +13,7 @@ public class WebhookController : ControllerBase
     private readonly IEmailService _emailService;
 
     public WebhookController(
-        ILogger<WebhookController> logger, 
+        ILogger<WebhookController> logger,
         IConfiguration configuration,
         IEmailService emailService)
     {
@@ -35,7 +35,7 @@ public class WebhookController : ControllerBase
 
             // Get users to notify from configuration
             var usersToNotify = _configuration["Users:Emails"]?
-                .Split(',', StringSplitOptions.RemoveEmptyEntries) 
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 ?? new[] { "your-email@example.com" };
 
             // Send email to each user
@@ -45,9 +45,10 @@ public class WebhookController : ControllerBase
                 _logger.LogInformation($"Notification sent to {userEmail}");
             }
 
-            return Ok(new { 
-                success = true, 
-                message = $"Notification sent to {usersToNotify.Length} user(s) for commit {notification.Commit?[..Math.Min(7, notification.Commit?.Length ?? 7)]}" 
+            return Ok(new
+            {
+                success = true,
+                message = $"Notification sent to {usersToNotify.Length} user(s) for commit {notification.Commit?[..Math.Min(7, notification.Commit?.Length ?? 7)]}"
             });
         }
         catch (Exception ex)

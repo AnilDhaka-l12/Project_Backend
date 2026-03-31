@@ -1,0 +1,89 @@
+name: 04 - Load & Performance Testing
+
+on:
+  push:
+    branches: [master]  # Only run on production branch
+  schedule:
+    - cron: '0 2 * * 0'  # Run every Sunday at 2 AM
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Build and publish
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish --configuration Release --output ./publish
+      
+      - name: Start application
+        run: |
+          dotnet ./publish/projectBackend.dll &
+          sleep 15
+      
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+      
+      - name: Smoke test (light load)
+        run: |
+          echo "🔥 Running smoke test..."
+          k6 run tests/load/smoke-test.js \
+            --vus 5 \
+            --duration 10s \
+            --out json=smoke-results.json
+      
+      - name: Load test (medium load)
+        run: |
+          echo "📊 Running load test..."
+          k6 run tests/load/load-test.js \
+            --vus 100 \
+            --duration 60s \
+            --out json=load-results.json
+      
+      - name: Stress test (heavy load)
+        run: |
+          echo "💥 Running stress test..."
+          k6 run tests/load/stress-test.js \
+            --vus 500 \
+            --duration 120s \
+            --out json=stress-results.json
+      
+      - name: Spike test (sudden traffic)
+        run: |
+          echo "⚡ Running spike test..."
+          k6 run tests/load/spike-test.js \
+            --out json=spike-results.json
+      
+      - name: Upload load test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results
+          path: |
+            smoke-results.json
+            load-results.json
+            stress-results.json
+            spike-results.json
+          retention-days: 30
+      
+      - name: Check performance thresholds
+        run: |
+          # Check if any thresholds failed
+          if grep -q "failed threshold" *.json; then
+            echo "❌ Performance thresholds not met!"
+            exit 1
+          fi
+          echo "✅ All performance thresholds passed!"

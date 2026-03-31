@@ -13,19 +13,19 @@ public class AdminLoginController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IValidator<LoginRequest> _loginValidator;
-    
-    public AdminLoginController(IAuthService authService,  IValidator<LoginRequest> loginValidator)
+
+    public AdminLoginController(IAuthService authService, IValidator<LoginRequest> loginValidator)
     {
         _authService = authService;
         _loginValidator = loginValidator;
     }
-    
+
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var validationResult = await _loginValidator.ValidateAsync(request);
-        
+
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors
@@ -39,18 +39,18 @@ public class AdminLoginController : ControllerBase
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
+
         try
         {
             var token = await _authService.LoginAsync(request.Username, request.Password);
-            
+
             if (string.IsNullOrEmpty(token))
             {
                 return StatusCode(500, new { message = "Token generation failed" });
             }
-            
+
             Console.WriteLine($"Token from controller: {token}");
-            
+
             // Return token in a proper JSON object
             return Ok(new { token = token, message = "Login successful" });
         }
@@ -71,15 +71,15 @@ public class AdminLoginController : ControllerBase
     {
         // Get token from Authorization header
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        
+
         if (string.IsNullOrEmpty(token))
             return BadRequest(new { message = "Token required" });
-        
+
         var result = await _authService.LogoutAsync(token);
-        
+
         if (result)
             return Ok(new { message = "Logged out successfully" });
-        
+
         return BadRequest(new { message = "Logout failed" });
     }
 

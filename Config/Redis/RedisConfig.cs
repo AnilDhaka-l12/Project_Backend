@@ -16,16 +16,16 @@ public static class RedisConfig
     /// Register Redis services with configuration
     /// </summary>
     public static IServiceCollection AddRedisServices(
-        this IServiceCollection services, 
+        this IServiceCollection services,
         IConfiguration configuration)
     {
         // 1. Bind the model from configuration
         var redisSettings = new RedisSettings();
         configuration.GetSection("Redis").Bind(redisSettings);
-        
+
         // 2. Register the model for DI (so it can be injected elsewhere)
         services.Configure<RedisSettings>(configuration.GetSection("Redis"));
-        
+
         // 3. Register connection multiplexer (singleton)
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
@@ -33,18 +33,18 @@ public static class RedisConfig
             var settings = sp.GetRequiredService<IOptions<RedisSettings>>().Value;
             return RedisConnection.CreateConnection(settings, logger);
         });
-        
+
         // 4. Register distributed cache
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = redisSettings.ConnectionString;
             options.InstanceName = redisSettings.InstanceName;
         });
-        
+
         // 5. Register health check
         services.AddHealthChecks()
             .AddCheck<RedisHealthCheck>("redis_health");
-        
+
         // 6. Register database accessor
         services.AddScoped<IRedisDatabase>(sp =>
         {
@@ -52,7 +52,7 @@ public static class RedisConfig
             var settings = sp.GetRequiredService<IOptions<RedisSettings>>().Value;
             return new RedisDatabase(multiplexer, settings.Database);
         });
-        
+
         return services;
     }
 }
@@ -74,16 +74,16 @@ public class RedisDatabase : IRedisDatabase
 {
     private readonly IConnectionMultiplexer _multiplexer;
     private readonly int _databaseId;
-    
+
     public RedisDatabase(IConnectionMultiplexer multiplexer, int databaseId = 0)
     {
         _multiplexer = multiplexer;
         _databaseId = databaseId;
     }
-    
+
     public IDatabase Database => _multiplexer.GetDatabase(_databaseId);
     public ISubscriber Subscriber => _multiplexer.GetSubscriber();
-    
+
     public IServer GetServer(string endpoint)
     {
         return _multiplexer.GetServer(endpoint);

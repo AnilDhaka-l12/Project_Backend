@@ -15,17 +15,17 @@ public static class RedisConnection
     {
         try
         {
-            logger.LogInformation("Initializing Redis connection to {ConnectionString}", 
+            logger.LogInformation("Initializing Redis connection to {ConnectionString}",
                 settings.ConnectionString.Split(',')[0]); // Log only host, not password
-            
+
             var options = ConfigurationOptions.Parse(settings.ConnectionString);
-            
+
             // Apply settings from our model
             options.AbortOnConnectFail = settings.AbortOnConnectFail;
             options.ConnectTimeout = settings.ConnectTimeout;
             options.SyncTimeout = settings.SyncTimeout;
             options.ConnectRetry = settings.ConnectRetry;
-            
+
             // SSL configuration
             if (settings.Ssl)
             {
@@ -35,9 +35,9 @@ public static class RedisConnection
                     options.SslHost = settings.SslHost;
                 }
             }
-            
+
             // Configure for high availability (if using Sentinel)
-            if (!string.IsNullOrEmpty(settings.ServiceName) && 
+            if (!string.IsNullOrEmpty(settings.ServiceName) &&
                 settings.SentinelEndpoints?.Any() == true)
             {
                 options.ServiceName = settings.ServiceName;
@@ -48,31 +48,31 @@ public static class RedisConnection
                 options.TieBreaker = "";
                 options.CommandMap = CommandMap.Sentinel;
             }
-            
+
             // Performance optimizations
             options.Proxy = Proxy.None;
             options.PreserveAsyncOrder = false;
-            
+
             // Create connection with event handlers
             var connection = ConnectionMultiplexer.Connect(options);
-            
+
             // Register connection events for monitoring
             connection.ConnectionFailed += (sender, args) =>
             {
-                logger.LogWarning(args.Exception, 
+                logger.LogWarning(args.Exception,
                     "Redis connection failed to {EndPoint}", args.EndPoint);
             };
-            
+
             connection.ConnectionRestored += (sender, args) =>
             {
                 logger.LogInformation("Redis connection restored to {EndPoint}", args.EndPoint);
             };
-            
+
             connection.ErrorMessage += (sender, args) =>
             {
                 logger.LogError("Redis error: {Message}", args.Message);
             };
-            
+
             logger.LogInformation("Redis connection established successfully");
             return connection;
         }

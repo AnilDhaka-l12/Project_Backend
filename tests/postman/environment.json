@@ -1,0 +1,11 @@
+{
+  "id": "environment",
+  "name": "Local",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "enabled": true
+    }
+  ]
+}

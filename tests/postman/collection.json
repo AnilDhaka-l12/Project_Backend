@@ -1,0 +1,49 @@
+{
+  "info": {
+    "name": "API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Get Health",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Redis Operations",
+      "item": [
+        {
+          "name": "Store Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/RedisTest/store",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"test-token\", \"expiryHours\": 1}"
+            }
+          }
+        },
+        {
+          "name": "Check Token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/RedisTest/check/test-token"
+          }
+        }
+      ]
+    }
+  ]
+}

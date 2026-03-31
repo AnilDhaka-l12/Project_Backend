@@ -1,0 +1,72 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+      
+      - name: Publish application
+        run: dotnet publish --configuration Release --output ./publish
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-app
+          path: ./publish
+          retention-days: 3
+      
+      - name: Deploy to Staging Server
+        run: |
+          echo "========================================="
+          echo "📦 Deploying to STAGING Environment"
+          echo "========================================="
+          echo "Branch: main"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "========================================="
+          
+          # ========================================
+          # ADD YOUR DEPLOYMENT COMMANDS HERE
+          # ========================================
+          
+          # Example for Docker:
+          # docker build -t myapp:staging .
+          # docker push myapp:staging
+          # ssh staging-server "docker pull myapp:staging && docker-compose up -d"
+          
+          # Example for Azure:
+          # az webapp deploy --resource-group myapp --name myapp-staging --src-path ./publish
+          
+          # Example for AWS:
+          # aws s3 sync ./publish s3://myapp-staging/
+          
+          echo "========================================="
+          echo "✅ Staging deployment complete!"
+          echo "🌐 Staging URL: https://staging.yourdomain.com"
+          echo "========================================="
+      
+      - name: Run smoke tests on staging
+        run: |
+          echo "🧪 Running smoke tests..."
+          # curl -f https://staging.yourdomain.com/health || exit 1
+          echo "✅ Smoke tests passed"

@@ -6,11 +6,11 @@ namespace projectBackend.Attributes;
 public class AdminAuthorizeAttribute : AuthorizeAttribute
 {
     public bool LogEnabled { get; set; } = true;
-    
+
     public AdminAuthorizeAttribute()
     {
     }
-    
+
     public AdminAuthorizeAttribute(bool logEnabled)
     {
         LogEnabled = logEnabled;

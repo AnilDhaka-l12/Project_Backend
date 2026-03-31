@@ -25,7 +25,7 @@ public class RedisHealthCheck : IHealthCheck
         {
             var db = _redis.GetDatabase();
             var pong = await db.PingAsync();
-            
+
             var data = new Dictionary<string, object>
             {
                 { "Ping", $"{pong.TotalMilliseconds:F2}ms" },
@@ -33,7 +33,7 @@ public class RedisHealthCheck : IHealthCheck
                 { "OperationCount", _redis.GetCounters().TotalOutstanding },
                 { "EndpointCount", _redis.GetEndPoints().Length }
             };
-            
+
             return HealthCheckResult.Healthy("Redis is operational", data);
         }
         catch (Exception ex)
