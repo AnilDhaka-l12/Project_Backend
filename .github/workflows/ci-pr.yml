@@ -27,27 +27,3 @@ jobs:
       
       - name: Check code formatting
         run: dotnet format --verify-no-changes
-      
-      - name: Add success comment to PR
-        if: success()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ **CI Passed!**\n\n- Build successful\n- All tests passed\n- Code formatting verified\n\nReady for review.'
-            })
-      
-      - name: Add failure comment to PR
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '❌ **CI Failed!**\n\nPlease check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.'
-            })
