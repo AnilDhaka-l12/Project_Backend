@@ -12,13 +12,13 @@ namespace projectBackend.Services
     {
         private readonly MailService _mailService;
         private readonly IConfiguration _configuration;
-        
+
         public EmailService(MailService mailService, IConfiguration configuration)
         {
             _mailService = mailService;
             _configuration = configuration;
         }
-        
+
         public async Task<bool> SendUpdateNotificationAsync(string toEmail, PushNotification notification)
         {
             try
@@ -26,14 +26,14 @@ namespace projectBackend.Services
                 var message = new MimeMessage();
                 var fromEmail = _configuration["EmailSettings:FromEmail"] ?? _configuration["EmailSettings:Login"];
                 var fromName = _configuration["EmailSettings:FromName"] ?? "App Updates";
-                
+
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 message.To.Add(new MailboxAddress("", toEmail));
-                
+
                 message.Subject = $"📦 New Update: {notification.Message?[..Math.Min(50, notification.Message?.Length ?? 50)]}";
-                
-                message.Body = new TextPart("html") 
-                { 
+
+                message.Body = new TextPart("html")
+                {
                     Text = $@"
                     <div style='font-family: Arial, sans-serif;'>
                         <h2>New Update Available!</h2>
@@ -42,7 +42,7 @@ namespace projectBackend.Services
                         <p><strong>Message:</strong> {notification.Message}</p>
                     </div>"
                 };
-                
+
                 await _mailService.SendRawEmailAsync(message);
                 return true;
             }
@@ -51,7 +51,7 @@ namespace projectBackend.Services
                 return false;
             }
         }
-        
+
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string body)
         {
             try
@@ -59,12 +59,12 @@ namespace projectBackend.Services
                 var message = new MimeMessage();
                 var fromEmail = _configuration["EmailSettings:FromEmail"] ?? _configuration["EmailSettings:Login"];
                 var fromName = _configuration["EmailSettings:FromName"] ?? "App Updates";
-                
+
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 message.To.Add(new MailboxAddress("", toEmail));
                 message.Subject = subject;
                 message.Body = new TextPart("html") { Text = body };
-                
+
                 await _mailService.SendRawEmailAsync(message);
                 return true;
             }

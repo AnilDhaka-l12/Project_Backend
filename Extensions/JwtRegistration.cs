@@ -10,7 +10,7 @@ public static class JwtRegistration
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not found"));
-        
+
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -32,7 +32,7 @@ public static class JwtRegistration
                 ClockSkew = TimeSpan.Zero
             };
         });
-        
+
         return services;
     }
 }

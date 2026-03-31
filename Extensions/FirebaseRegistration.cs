@@ -13,10 +13,10 @@ public static class FirebaseRegistration
     {
         // Initialize Firebase Firestore
         var firestoreDb = FirebaseConfig.InitializeFirestore(configuration);
-        
+
         // Register FirestoreDb as a singleton (single instance for the entire app)
         services.AddSingleton(firestoreDb);
-        
+
         return services;
     }
 }

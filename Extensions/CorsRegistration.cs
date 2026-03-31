@@ -17,7 +17,7 @@ public static class CorsRegistration
                       .AllowCredentials();
             });
         });
-        
+
         return services;
     }
 }

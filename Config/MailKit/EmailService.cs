@@ -14,13 +14,13 @@ namespace projectBackend.Config.MailKit
         private readonly ILogger<MailService> _logger;
         private SmtpClient _smtpClient;
         private bool _isInitialized = false;
-        
+
         public MailService(IConfiguration configuration, ILogger<MailService> logger)
         {
             _configuration = configuration;
             _logger = logger;
         }
-        
+
         // Auto-initialize when first used
         private async Task EnsureInitializedAsync()
         {
@@ -33,10 +33,10 @@ namespace projectBackend.Config.MailKit
                     var port = int.TryParse(_configuration["EmailSettings:Port"], out int p) ? p : 587;
                     var login = _configuration["EmailSettings:Login"] ?? string.Empty;
                     var key = _configuration["EmailSettings:Key"] ?? string.Empty;
-                    
+
                     await _smtpClient.ConnectAsync(host, port, SecureSocketOptions.StartTls);
                     await _smtpClient.AuthenticateAsync(login, key);
-                    
+
                     _isInitialized = true;
                     _logger.LogInformation("Mail service initialized successfully");
                 }
@@ -47,19 +47,19 @@ namespace projectBackend.Config.MailKit
                 }
             }
         }
-        
+
         public async Task SendRawEmailAsync(MimeMessage message)
         {
             await EnsureInitializedAsync(); // Auto-initialize on first use
-            
+
             if (_smtpClient == null || !_smtpClient.IsConnected)
             {
                 throw new InvalidOperationException("Mail service not connected");
             }
-            
+
             await _smtpClient.SendAsync(message);
         }
-        
+
         public async Task DisconnectAsync()
         {
             if (_smtpClient != null && _smtpClient.IsConnected)

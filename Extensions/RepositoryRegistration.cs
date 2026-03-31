@@ -17,10 +17,10 @@ public static class RepositoryRegistration
     {
         // Register Repositories only
         services.AddScoped<IUserRepository, UserRepository>();
-        
+
         return services;
     }
-    
+
     public static IServiceCollection RegisterServices(this IServiceCollection services)
     {
         // Register FluentValidation Validators
@@ -33,7 +33,7 @@ public static class RepositoryRegistration
         services.AddSingleton<MailService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRedisCacheService, RedisCacheService>();
-        
+
         return services;
     }
 }

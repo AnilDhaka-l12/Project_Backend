@@ -9,11 +9,11 @@ public class TestController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok(new 
-        { 
+        return Ok(new
+        {
             message = "API is working!",
             timestamp = DateTime.Now,
-            endpoints = new[] 
+            endpoints = new[]
             {
                 "/api/test",
                 "/api/users",
@@ -21,7 +21,7 @@ public class TestController : ControllerBase
             }
         });
     }
-    
+
     [HttpGet("hello")]
     public IActionResult Hello()
     {
