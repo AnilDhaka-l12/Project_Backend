@@ -1,11 +1,13 @@
-name: CI - Validate Production PR
+name: Notifications
 
 on:
+  push:
+    branches: [main, master]
   pull_request:
-    branches: [master]
+    branches: [main, master]
 
 jobs:
-  validate:
+  build-and-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -16,20 +18,42 @@ jobs:
         with:
           dotnet-version: '9.0'
       
-      - name: Install dotnet format
-        run: dotnet tool install -g dotnet-format
+      - name: Restore dependencies
+        run: dotnet restore Project_Backend.sln
       
-      - name: Find and build solution/project
-        shell: bash
-        run: |
-          # Find first .sln or .csproj file
-          if ls *.sln 2>/dev/null | head -1; then
-            PROJECT_FILE=$(ls *.sln | head -1)
-          else
-            PROJECT_FILE=$(ls *.csproj | head -1)
-          fi
-          
-          echo "Building: $PROJECT_FILE"
-          dotnet restore "$PROJECT_FILE"
-          dotnet build "$PROJECT_FILE" --no-restore --configuration Release
-          dotnet format --verify-no-changes "$PROJECT_FILE"
+      - name: Build
+        run: dotnet build Project_Backend.sln --no-restore --configuration Release
+      
+      - name: Run tests
+        run: dotnet test Project_Backend.sln --no-build --verbosity normal
+      
+      - name: Publish
+        run: dotnet publish Project_Backend.sln --configuration Release --output ./publish
+      
+      - name: Discord Success Notification
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: ".NET Build and Test Successful"
+          description: |
+            **Project:** ${{ github.repository }}
+            **Commit:** `${{ github.sha }}`
+            **Author:** ${{ github.actor }}
+            **Branch:** ${{ github.ref_name }}
+          color: 0x00ff00
+
+      - name: Discord Failure Notification
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: ".NET Build or Test Failed"
+          description: |
+            **Project:** ${{ github.repository }}
+            **Failed Commit:** `${{ github.sha }}`
+            **Author:** ${{ github.actor }}
+            **Branch:** ${{ github.ref_name }}
+            
+            🔗 [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          color: 0xff0000
