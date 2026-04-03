@@ -19,11 +19,15 @@ jobs:
       - name: Install dotnet format
         run: dotnet tool install -g dotnet-format
       
+      - name: Find solution file
+        id: sln
+        run: echo "sln_file=$(find . -maxdepth 1 -name '*.sln' -printf '%f')" >> $GITHUB_OUTPUT
+      
       - name: Restore dependencies
-        run: dotnet restore Project_Backend.sln
+        run: dotnet restore ${{ steps.sln.outputs.sln_file }}
       
       - name: Build
-        run: dotnet build Project_Backend.sln --no-restore --configuration Release
+        run: dotnet build ${{ steps.sln.outputs.sln_file }} --no-restore --configuration Release
       
       - name: Check code formatting
-        run: dotnet format --verify-no-changes Project_Backend.sln
+        run: dotnet format --verify-no-changes ${{ steps.sln.outputs.sln_file }}
