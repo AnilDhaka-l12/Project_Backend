@@ -33,6 +33,9 @@ public static class RepositoryRegistration
         services.AddSingleton<MailService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRedisCacheService, RedisCacheService>();
+        services.AddScoped<IUserExportService, UserExportService>();
+        services.AddScoped<IUserActivityRepository, UserActivityRepository>();
+        services.AddScoped<IUserActivityService, UserActivityService>();
 
         return services;
     }
