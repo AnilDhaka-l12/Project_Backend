@@ -2,31 +2,31 @@ name: Notifications
 
 on:
   push:
-    branches: [main]  # Changed from master to main
+    branches: [main, master]
   pull_request:
-    branches: [main]  # Changed from master to main
+    branches: [main, master]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
-      
+
       - name: Restore dependencies
-        run: dotnet restore Project_Backend.sln
-      
+        run: dotnet restore projectBackend.csproj
+
       - name: Build
-        run: dotnet build Project_Backend.sln --no-restore --configuration Release
-      
+        run: dotnet build projectBackend.csproj --no-restore --configuration Release
+
       - name: Publish
-        run: dotnet publish Project_Backend.sln --configuration Release --output ./publish
-      
+        run: dotnet publish projectBackend.csproj --configuration Release --output ./publish
+
       - name: Discord Success Notification
         if: success()
         uses: sarisia/actions-status-discord@v1
