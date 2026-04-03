@@ -19,15 +19,17 @@ jobs:
       - name: Install dotnet format
         run: dotnet tool install -g dotnet-format
       
-      - name: Find solution file
-        id: sln
-        run: echo "sln_file=$(find . -maxdepth 1 -name '*.sln' -printf '%f')" >> $GITHUB_OUTPUT
-      
-      - name: Restore dependencies
-        run: dotnet restore ${{ steps.sln.outputs.sln_file }}
-      
-      - name: Build
-        run: dotnet build ${{ steps.sln.outputs.sln_file }} --no-restore --configuration Release
-      
-      - name: Check code formatting
-        run: dotnet format --verify-no-changes ${{ steps.sln.outputs.sln_file }}
+      - name: Find and build solution/project
+        shell: bash
+        run: |
+          # Find first .sln or .csproj file
+          if ls *.sln 2>/dev/null | head -1; then
+            PROJECT_FILE=$(ls *.sln | head -1)
+          else
+            PROJECT_FILE=$(ls *.csproj | head -1)
+          fi
+          
+          echo "Building: $PROJECT_FILE"
+          dotnet restore "$PROJECT_FILE"
+          dotnet build "$PROJECT_FILE" --no-restore --configuration Release
+          dotnet format --verify-no-changes "$PROJECT_FILE"
