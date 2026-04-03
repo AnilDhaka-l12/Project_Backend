@@ -19,16 +19,16 @@ jobs:
           dotnet-version: '9.0'
       
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Project_Backend.sln
       
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build Project_Backend.sln --no-restore --configuration Release
       
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test Project_Backend.sln --no-build --verbosity normal
       
       - name: Publish
-        run: dotnet publish --configuration Release --output ./publish
+        run: dotnet publish Project_Backend.sln --configuration Release --output ./publish
       
       - name: Discord Success Notification
         if: success()
