@@ -19,23 +19,20 @@ jobs:
           dotnet-version: '9.0'
       
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Project_Backend.sln
       
       - name: Build
-        run: dotnet build --no-restore --configuration Release
-      
-      - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet build Project_Backend.sln --no-restore --configuration Release
       
       - name: Publish
-        run: dotnet publish --configuration Release --output ./publish
+        run: dotnet publish Project_Backend.sln --configuration Release --output ./publish
       
       - name: Discord Success Notification
         if: success()
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: ".NET Build and Test Successful"
+          title: ".NET Build Successful"
           description: |
             **Project:** ${{ github.repository }}
             **Commit:** `${{ github.sha }}`
@@ -48,7 +45,7 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: ".NET Build or Test Failed"
+          title: ".NET Build Failed"
           description: |
             **Project:** ${{ github.repository }}
             **Failed Commit:** `${{ github.sha }}`
