@@ -24,6 +24,9 @@ jobs:
       - name: Build
         run: dotnet build Project_Backend.sln --no-restore --configuration Release
       
+      - name: Run tests
+        run: dotnet test Project_Backend.sln --no-build --verbosity normal
+      
       - name: Publish
         run: dotnet publish Project_Backend.sln --configuration Release --output ./publish
       
@@ -32,7 +35,7 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: ".NET Build Successful"
+          title: ".NET Build and Test Successful"
           description: |
             **Project:** ${{ github.repository }}
             **Commit:** `${{ github.sha }}`
@@ -45,7 +48,7 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: ".NET Build Failed"
+          title: ".NET Build or Test Failed"
           description: |
             **Project:** ${{ github.repository }}
             **Failed Commit:** `${{ github.sha }}`
