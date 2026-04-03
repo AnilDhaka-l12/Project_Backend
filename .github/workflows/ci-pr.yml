@@ -20,13 +20,13 @@ jobs:
         run: dotnet tool install -g dotnet-format
       
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Project_Backend.sln
       
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build Project_Backend.sln --no-restore --configuration Release
       
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test Project_Backend.sln --no-build --verbosity normal
       
       - name: Check code formatting
-        run: dotnet format --verify-no-changes
+        run: dotnet format --verify-no-changes Project_Backend.sln
