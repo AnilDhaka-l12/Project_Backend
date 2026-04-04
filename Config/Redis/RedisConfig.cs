@@ -2,9 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
-using projectBackend.Model.Redis;  // Import from Models
+using ProjectBackend.Model.Redis;  // Import from Models
 
-namespace projectBackend.Config.Redis;
+namespace ProjectBackend.Config.Redis;
 
 /// <summary>
 /// Redis configuration and dependency injection setup

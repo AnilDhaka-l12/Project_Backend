@@ -1,10 +1,10 @@
 // Controllers/UserExportController.cs
 using Microsoft.AspNetCore.Mvc;
-using projectBackend.Services.IServices;
-using projectBackend.Attributes;
+using ProjectBackend.Services.IServices;
+using ProjectBackend.Attributes;
 using Microsoft.AspNetCore.Authorization;
 
-namespace projectBackend.Controllers
+namespace ProjectBackend.Controllers
 {
     [ApiController]
     [AdminAuthorize]
@@ -24,7 +24,7 @@ namespace projectBackend.Controllers
         public async Task<IActionResult> ExportToCsv([FromQuery] string? organization, [FromQuery] bool? isActive)
         {
             byte[] csvData;
-            
+
             if (organization != null || isActive.HasValue)
             {
                 csvData = await _userExportService.ExportFilteredUsersToCsvAsync(organization, isActive);
@@ -33,7 +33,7 @@ namespace projectBackend.Controllers
             {
                 csvData = await _userExportService.ExportUsersToCsvAsync();
             }
-            
+
             var fileName = $"users_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             return File(csvData, "text/csv", fileName);
         }
@@ -45,7 +45,7 @@ namespace projectBackend.Controllers
         public async Task<IActionResult> ExportToExcel([FromQuery] string? organization, [FromQuery] bool? isActive)
         {
             byte[] excelData;
-            
+
             if (organization != null || isActive.HasValue)
             {
                 excelData = await _userExportService.ExportFilteredUsersToExcelAsync(organization, isActive);
@@ -54,7 +54,7 @@ namespace projectBackend.Controllers
             {
                 excelData = await _userExportService.ExportUsersToExcelAsync();
             }
-            
+
             var fileName = $"users_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }

@@ -1,6 +1,6 @@
-using projectBackend.Services.IServices;
+using ProjectBackend.Services.IServices;
 
-namespace projectBackend.Middlewares;
+namespace ProjectBackend.Middlewares;
 
 public class JwtBlacklistMiddleware
 {

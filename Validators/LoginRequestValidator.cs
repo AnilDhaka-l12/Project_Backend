@@ -1,7 +1,7 @@
 using FluentValidation;
-using projectBackend.Model.RequestModel;
+using ProjectBackend.Model.RequestModel;
 
-namespace projectBackend.Validators;
+namespace ProjectBackend.Validators;
 
 public class LoginRequestValidator : AbstractValidator<LoginRequest>
 {

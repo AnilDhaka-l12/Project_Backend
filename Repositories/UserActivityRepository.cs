@@ -1,8 +1,8 @@
 using Google.Cloud.Firestore;
-using projectBackend.Model.Entities;
-using projectBackend.Repositories.Interfaces;
+using ProjectBackend.Model.Entities;
+using ProjectBackend.Repositories.Interfaces;
 
-namespace projectBackend.Repositories
+namespace ProjectBackend.Repositories
 {
     public class UserActivityRepository : IUserActivityRepository
     {
@@ -27,7 +27,7 @@ namespace projectBackend.Repositories
             var query = GetCollection()
                 .WhereEqualTo("UserId", userId)
                 .WhereEqualTo("Date", date.Date);
-            
+
             var snapshot = await query.GetSnapshotAsync();
             return snapshot.Documents.FirstOrDefault()?.ConvertTo<UserActivity>();
         }
@@ -44,7 +44,7 @@ namespace projectBackend.Repositories
             var query = GetCollection()
                 .WhereGreaterThanOrEqualTo("Date", startDate.Date)
                 .WhereLessThanOrEqualTo("Date", endDate.Date);
-            
+
             var snapshot = await query.GetSnapshotAsync();
             return snapshot.Documents.Select(doc => doc.ConvertTo<UserActivity>());
         }
@@ -60,7 +60,7 @@ namespace projectBackend.Repositories
         {
             userActivity.Id = Guid.NewGuid().ToString();
             userActivity.UpdatedAt = DateTime.UtcNow;
-            
+
             var doc = GetCollection().Document(userActivity.Id);
             await doc.SetAsync(userActivity);
             return userActivity;

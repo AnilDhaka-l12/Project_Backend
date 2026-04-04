@@ -4,10 +4,10 @@ using System.Text;
 using BCrypt.Net;  // ← This is correct for BCrypt.Net-Next
 using Google.Cloud.Firestore;
 using Microsoft.IdentityModel.Tokens;
-using projectBackend.Services.IServices;
+using ProjectBackend.Services.IServices;
 
 
-namespace projectBackend.Services;
+namespace ProjectBackend.Services;
 
 public class AuthService : IAuthService
 {
