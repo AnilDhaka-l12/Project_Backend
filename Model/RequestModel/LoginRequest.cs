@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace projectBackend.Model.RequestModel;
+namespace ProjectBackend.Model.RequestModel;
 
 public class LoginRequest
 {

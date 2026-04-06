@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using projectBackend.Services.IServices;  // Changed from .Interfaces
+using ProjectBackend.Services.IServices;  // Changed from .Interfaces
 
-namespace projectBackend.Controllers;
+namespace ProjectBackend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -1,6 +1,6 @@
-using projectBackend.Model.Entities;
+using ProjectBackend.Model.Entities;
 
-namespace projectBackend.Repositories.Interfaces
+namespace ProjectBackend.Repositories.Interfaces
 {
     public interface IUserActivityRepository
     {

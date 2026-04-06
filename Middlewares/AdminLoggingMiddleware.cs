@@ -5,11 +5,11 @@ using System.Text;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
-using projectBackend.Attributes;
-using projectBackend.Model;
-using projectBackend.Model.Entities;
+using ProjectBackend.Attributes;
+using ProjectBackend.Model;
+using ProjectBackend.Model.Entities;
 
-namespace projectBackend.Middlewares;
+namespace ProjectBackend.Middlewares;
 
 public class AdminLoggingMiddleware
 {

@@ -2,12 +2,12 @@ using System.Text;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
-using projectBackend.Model.Entities;
-using projectBackend.Model.Dto;
-using projectBackend.Repositories.Interfaces;
-using projectBackend.Services.IServices;
+using ProjectBackend.Model.Entities;
+using ProjectBackend.Model.Dto;
+using ProjectBackend.Repositories.Interfaces;
+using ProjectBackend.Services.IServices;
 
-namespace projectBackend.Services
+namespace ProjectBackend.Services
 {
     public class UserExportService : IUserExportService
     {
@@ -36,17 +36,17 @@ namespace projectBackend.Services
         public async Task<byte[]> ExportFilteredUsersToCsvAsync(string? organization = null, bool? isActive = null)
         {
             IEnumerable<User> users = await _userRepository.GetAllAsync();
-            
+
             if (!string.IsNullOrEmpty(organization))
             {
                 users = users.Where(u => u.Organization == organization);
             }
-            
+
             if (isActive.HasValue)
             {
                 users = users.Where(u => u.IsActive == isActive.Value);
             }
-            
+
             return GenerateCsv(users);
         }
 
@@ -54,17 +54,17 @@ namespace projectBackend.Services
         public async Task<byte[]> ExportFilteredUsersToExcelAsync(string? organization = null, bool? isActive = null)
         {
             IEnumerable<User> users = await _userRepository.GetAllAsync();
-            
+
             if (!string.IsNullOrEmpty(organization))
             {
                 users = users.Where(u => u.Organization == organization);
             }
-            
+
             if (isActive.HasValue)
             {
                 users = users.Where(u => u.IsActive == isActive.Value);
             }
-            
+
             return GenerateExcel(users);
         }
 
@@ -83,16 +83,16 @@ namespace projectBackend.Services
             });
 
             var csvBuilder = new StringBuilder();
-            
+
             // Add headers
             csvBuilder.AppendLine("Id,Email,FullName,Organization,IsActive,CreatedAt,UpdatedAt");
-            
+
             // Add data rows
             foreach (var user in exportUsers)
             {
                 csvBuilder.AppendLine($"\"{user.Id}\",\"{user.Email}\",\"{user.Username}\",\"{user.Organization}\",{user.IsActive},{user.CreatedAt:yyyy-MM-dd HH:mm:ss},{(user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "")}");
             }
-            
+
             return Encoding.UTF8.GetBytes(csvBuilder.ToString());
         }
 
@@ -100,7 +100,7 @@ namespace projectBackend.Services
         {
             using var package = new ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Users");
-            
+
             // Headers with styling
             var headers = new[] { "ID", "Email", "Full Name", "Organization", "Is Active", "Created At", "Updated At" };
             for (int i = 0; i < headers.Length; i++)
@@ -111,7 +111,7 @@ namespace projectBackend.Services
                 worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 worksheet.Cells[1, i + 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
             }
-            
+
             // Data rows
             int row = 2;
             foreach (var user in users)
@@ -125,10 +125,10 @@ namespace projectBackend.Services
                 worksheet.Cells[row, 7].Value = user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
                 row++;
             }
-            
+
             // Auto-fit columns
             worksheet.Cells[1, 1, row - 1, 7].AutoFitColumns();
-            
+
             return package.GetAsByteArray();
         }
     }

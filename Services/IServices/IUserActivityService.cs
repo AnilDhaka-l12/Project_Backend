@@ -1,6 +1,6 @@
-using projectBackend.Model.Dto;
+using ProjectBackend.Model.Dto;
 
-namespace projectBackend.Services.IServices
+namespace ProjectBackend.Services.IServices
 {
     public interface IUserActivityService
     {

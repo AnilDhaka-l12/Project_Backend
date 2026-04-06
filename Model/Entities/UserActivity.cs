@@ -1,6 +1,6 @@
 using Google.Cloud.Firestore;
 
-namespace projectBackend.Model.Entities;
+namespace ProjectBackend.Model.Entities;
 
 [FirestoreData]
 public class UserActivity

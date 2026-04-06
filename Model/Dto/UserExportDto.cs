@@ -1,5 +1,5 @@
 
-namespace projectBackend.Model.Dto
+namespace ProjectBackend.Model.Dto
 
 {
     public class UserExportDto
