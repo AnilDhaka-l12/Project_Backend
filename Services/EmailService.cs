@@ -1,12 +1,12 @@
 using MimeKit;
-using projectBackend.Config.MailKit;
-using projectBackend.Model;
-using projectBackend.Services.IServices;
+using ProjectBackend.Config.MailKit;
+using ProjectBackend.Model;
+using ProjectBackend.Services.IServices;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
-namespace projectBackend.Services
+namespace ProjectBackend.Services
 {
     public class EmailService : IEmailService
     {

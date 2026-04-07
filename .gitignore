@@ -9,7 +9,7 @@ appsettings.Local.json
 secrets.json
 firebase-service-account.json
 appsettings.json
-
+.sln
 # IDE files
 .vs/
 .vscode/

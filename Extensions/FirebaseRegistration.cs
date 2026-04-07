@@ -1,8 +1,8 @@
 using Google.Cloud.Firestore;
 using Microsoft.Extensions.DependencyInjection;
-using projectBackend.Config.Firebase;
+using ProjectBackend.Config.Firebase;
 
-namespace projectBackend.Extensions;
+namespace ProjectBackend.Extensions;
 
 public static class FirebaseRegistration
 {

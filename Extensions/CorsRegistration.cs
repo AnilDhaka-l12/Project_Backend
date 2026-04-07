@@ -1,4 +1,4 @@
-namespace projectBackend.Extensions;
+namespace ProjectBackend.Extensions;
 
 public static class CorsRegistration
 {

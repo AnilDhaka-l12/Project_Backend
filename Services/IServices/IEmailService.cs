@@ -1,7 +1,7 @@
-using projectBackend.Model;
+using ProjectBackend.Model;
 using System.Threading.Tasks;
 
-namespace projectBackend.Services.IServices
+namespace ProjectBackend.Services.IServices
 {
     public interface IEmailService
     {

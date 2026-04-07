@@ -1,4 +1,4 @@
-namespace projectBackend.Models.Redis;
+namespace ProjectBackend.Model.Redis;
 
 public class RedisSettings
 {

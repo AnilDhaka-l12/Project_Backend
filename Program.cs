@@ -1,5 +1,5 @@
-using projectBackend.Extensions;
-using projectBackend.Middlewares;
+using ProjectBackend.Extensions;
+using ProjectBackend.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

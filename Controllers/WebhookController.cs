@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using projectBackend.Model;
-using projectBackend.Services.IServices;
+using ProjectBackend.Model;
+using ProjectBackend.Services.IServices;
 
 namespace EmailBackend.Controllers;
 

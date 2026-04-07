@@ -1,8 +1,8 @@
 using StackExchange.Redis;
-using projectBackend.Config.Redis;
-using projectBackend.Services.IServices;
+using ProjectBackend.Config.Redis;
+using ProjectBackend.Services.IServices;
 
-namespace projectBackend.Services;
+namespace ProjectBackend.Services;
 
 public class RedisCacheService : IRedisCacheService
 {
