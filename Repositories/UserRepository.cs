@@ -1,4 +1,5 @@
 using Google.Cloud.Firestore;
+using ProjectBackend.Model.Dto;
 using ProjectBackend.Model.Entities;
 using ProjectBackend.Repositories.Interfaces;
 
@@ -78,6 +79,168 @@ public class UserRepository : IUserRepository
             user.Id = doc.Id;
             return user;
         });
+    }
+
+    // NEW: Paginated methods for Firestore
+    public async Task<PaginatedResult<User>> GetPaginatedAsync(PaginationParams paginationParams)
+    {
+        // Start with base query
+        Query query = _usersCollection;
+        
+        // Apply filters
+        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
+        {
+            // Firestore doesn't support text search natively
+            // You can filter by email or use a search index
+            query = query.WhereEqualTo("Email", paginationParams.SearchTerm);
+        }
+        
+        if (!string.IsNullOrEmpty(paginationParams.Organization))
+        {
+            query = query.WhereEqualTo("Organization", paginationParams.Organization);
+        }
+        
+        if (paginationParams.IsActive.HasValue)
+        {
+            query = query.WhereEqualTo("IsActive", paginationParams.IsActive.Value);
+        }
+        
+        // Get total count
+        var countSnapshot = await query.GetSnapshotAsync();
+        var totalCount = countSnapshot.Documents.Count;
+        
+        // Apply sorting and pagination
+        var orderedQuery = query.OrderByDescending("CreatedAt");
+        
+        var paginatedQuery = orderedQuery
+            .Offset((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Limit(paginationParams.PageSize);
+        
+        var snapshot = await paginatedQuery.GetSnapshotAsync();
+        var items = snapshot.Documents.Select(doc =>
+        {
+            var user = doc.ConvertTo<User>();
+            user.Id = doc.Id;
+            return user;
+        });
+        
+        return new PaginatedResult<User>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = paginationParams.PageNumber,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
+    public async Task<PaginatedResult<User>> GetPaginatedByOrganizationAsync(string organization, PaginationParams paginationParams)
+    {
+        var query = _usersCollection.WhereEqualTo("Organization", organization);
+        
+        // Get total count
+        var countSnapshot = await query.GetSnapshotAsync();
+        var totalCount = countSnapshot.Documents.Count;
+        
+        // Apply sorting and pagination
+        var paginatedQuery = query
+            .OrderByDescending("CreatedAt")
+            .Offset((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Limit(paginationParams.PageSize);
+        
+        var snapshot = await paginatedQuery.GetSnapshotAsync();
+        var items = snapshot.Documents.Select(doc =>
+        {
+            var user = doc.ConvertTo<User>();
+            user.Id = doc.Id;
+            return user;
+        });
+        
+        return new PaginatedResult<User>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = paginationParams.PageNumber,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
+    public async Task<PaginatedResult<User>> GetPaginatedByActiveStatusAsync(bool isActive, PaginationParams paginationParams)
+    {
+        var query = _usersCollection.WhereEqualTo("IsActive", isActive);
+        
+        // Get total count
+        var countSnapshot = await query.GetSnapshotAsync();
+        var totalCount = countSnapshot.Documents.Count;
+        
+        // Apply sorting and pagination
+        var paginatedQuery = query
+            .OrderByDescending("CreatedAt")
+            .Offset((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Limit(paginationParams.PageSize);
+        
+        var snapshot = await paginatedQuery.GetSnapshotAsync();
+        var items = snapshot.Documents.Select(doc =>
+        {
+            var user = doc.ConvertTo<User>();
+            user.Id = doc.Id;
+            return user;
+        });
+        
+        return new PaginatedResult<User>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = paginationParams.PageNumber,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
+    public async Task<PaginatedResult<User>> GetPaginatedWithFiltersAsync(UserQueryParams queryParams)
+    {
+        Query query = _usersCollection;
+        
+        // Apply filters
+        if (!string.IsNullOrEmpty(queryParams.Organization))
+        {
+            query = query.WhereEqualTo("Organization", queryParams.Organization);
+        }
+        
+        if (queryParams.IsActive.HasValue)
+        {
+            query = query.WhereEqualTo("IsActive", queryParams.IsActive.Value);
+        }
+        
+        if (!string.IsNullOrEmpty(queryParams.Email))
+        {
+            query = query.WhereEqualTo("Email", queryParams.Email);
+        }
+        
+        // Get total count
+        var countSnapshot = await query.GetSnapshotAsync();
+        var totalCount = countSnapshot.Documents.Count;
+        
+        // Apply sorting and pagination
+        var orderedQuery = query.OrderByDescending("CreatedAt");
+        
+        var paginatedQuery = orderedQuery
+            .Offset((queryParams.PageNumber - 1) * queryParams.PageSize)
+            .Limit(queryParams.PageSize);
+        
+        var snapshot = await paginatedQuery.GetSnapshotAsync();
+        var items = snapshot.Documents.Select(doc =>
+        {
+            var user = doc.ConvertTo<User>();
+            user.Id = doc.Id;
+            return user;
+        });
+        
+        return new PaginatedResult<User>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = queryParams.PageNumber,
+            PageSize = queryParams.PageSize
+        };
     }
 
     public async Task<User> CreateAsync(User user)
