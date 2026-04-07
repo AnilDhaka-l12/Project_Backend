@@ -2,7 +2,7 @@ name: Deploy to Staging
 
 on:
   push:
-    branches: [main]   # triggers only on pushes to main
+    branches: [main]
 
 jobs:
   deploy-staging:
@@ -35,15 +35,15 @@ jobs:
           path: ./publish
           retention-days: 3
 
-      # Step 8: Login to Docker Hub
+      # Explicit Docker login using PAT
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-          
+      - name: Verify Docker login
+        run: docker info
 
+      # Build and push Docker image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
@@ -69,12 +69,14 @@ jobs:
             BACKBLAZESETTINGS_ENDPOINTURL=${{ secrets.BACKBLAZESETTINGS_ENDPOINTURL }}
             BACKBLAZESETTINGS_BUCKETNAME=${{ secrets.BACKBLAZESETTINGS_BUCKETNAME }}
 
+      # Deploy to staging server
       - name: Deploy to Staging Server
         run: |
           echo "Deploying Docker image to staging server"
           ssh user@staging-server "docker pull pravij07/projectbackend:staging && docker-compose -f docker-compose.prod.yml up -d backend-staging"
           echo "Staging deployment complete"
 
+      # Run smoke tests
       - name: Run smoke tests on staging
         run: |
           curl -f https://staging.yourdomain.com/health || exit 1
