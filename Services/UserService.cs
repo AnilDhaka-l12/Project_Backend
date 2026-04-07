@@ -1,3 +1,4 @@
+using ProjectBackend.Model.Dto;
 using ProjectBackend.Model.Entities;
 using ProjectBackend.Repositories.Interfaces;
 using ProjectBackend.Services.IServices;
@@ -13,6 +14,7 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
+    // Existing methods
     public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
         return await _userRepository.GetAllAsync();
@@ -61,5 +63,26 @@ public class UserService : IUserService
     public async Task<bool> DeleteUserAsync(string id)
     {
         return await _userRepository.DeleteAsync(id);
+    }
+
+    // New paginated methods
+    public async Task<PaginatedResult<User>> GetUsersPaginatedAsync(PaginationParams paginationParams)
+    {
+        return await _userRepository.GetPaginatedAsync(paginationParams);
+    }
+
+    public async Task<PaginatedResult<User>> GetUsersByOrganizationPaginatedAsync(string organization, PaginationParams paginationParams)
+    {
+        return await _userRepository.GetPaginatedByOrganizationAsync(organization, paginationParams);
+    }
+
+    public async Task<PaginatedResult<User>> GetActiveUsersPaginatedAsync(PaginationParams paginationParams)
+    {
+        return await _userRepository.GetPaginatedByActiveStatusAsync(true, paginationParams);
+    }
+
+    public async Task<PaginatedResult<User>> GetUsersWithFiltersAsync(UserQueryParams queryParams)
+    {
+        return await _userRepository.GetPaginatedWithFiltersAsync(queryParams);
     }
 }
