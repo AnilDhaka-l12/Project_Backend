@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # Redis Service
+  redis:
+    image: redis:7.2-alpine
+    container_name: projectbackend_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_network
+
+  # Production Backend
+  backend-production:
+    image: pravij07/projectbackend:production
+    container_name: backend_production
+    restart: unless-stopped
+    ports:
+      - "5082:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      # Redis
+      - REDIS__CONNECTIONSTRING=redis:6379,abortConnect=False
+      - REDIS__INSTANCENAME=ProductionCache
+      # Firebase
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-service-account.json
+      - FIREBASE__PROJECTID=${PROJECTID}
+      - FIREBASE__CREDENTIALSPATH=/app/firebase-service-account.json
+      # JWT
+      - JWT__KEY=${JWT_KEY}
+      - JWT__ISSUER=${ISSUER}
+      - JWT__AUDIENCE=${AUDIENCE}
+      # Email
+      - EMAIL__HOST=${EMAIL_HOST}
+      - EMAIL__LOGIN=${EMAIL_LOGIN}
+      - EMAIL__KEY=${EMAIL_KEY}
+      # Backblaze
+      - BACKBLAZESETTINGS__ACCESSKEY=${BACKBLAZESETTINGS_ACCESSKEY}
+      - BACKBLAZESETTINGS__SECRETKEY=${BACKBLAZESETTINGS_SECRETKEY}
+      - BACKBLAZESETTINGS__ENDPOINTURL=${BACKBLAZESETTINGS_ENDPOINTURL}
+      - BACKBLAZESETTINGS__BUCKETNAME=${BACKBLAZESETTINGS_BUCKETNAME}
+    volumes:
+      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend_network
+
+  # Staging Backend
+  backend-staging:
+    image: pravij07/projectbackend:staging
+    container_name: backend_staging
+    restart: unless-stopped
+    ports:
+      - "5083:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      # Redis
+      - REDIS__CONNECTIONSTRING=redis:6379,abortConnect=False
+      - REDIS__INSTANCENAME=StagingCache
+      # Firebase
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-service-account.json
+      - FIREBASE__PROJECTID=${PROJECTID}
+      - FIREBASE__CREDENTIALSPATH=/app/firebase-service-account.json
+      # JWT
+      - JWT__KEY=${JWT_KEY}
+      - JWT__ISSUER=${ISSUER}
+      - JWT__AUDIENCE=${AUDIENCE}
+      # Email
+      - EMAIL__HOST=${EMAIL_HOST}
+      - EMAIL__LOGIN=${EMAIL_LOGIN}
+      - EMAIL__KEY=${EMAIL_KEY}
+      # Backblaze
+      - BACKBLAZESETTINGS__ACCESSKEY=${BACKBLAZESETTINGS_ACCESSKEY}
+      - BACKBLAZESETTINGS__SECRETKEY=${BACKBLAZESETTINGS_SECRETKEY}
+      - BACKBLAZESETTINGS__ENDPOINTURL=${BACKBLAZESETTINGS_ENDPOINTURL}
+      - BACKBLAZESETTINGS__BUCKETNAME=${BACKBLAZESETTINGS_BUCKETNAME}
+    volumes:
+      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend_network
+
+networks:
+  backend_network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local

@@ -37,47 +37,39 @@ jobs:
           path: ./publish
           retention-days: 7
       
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            pravij07/projectbackend:production
+            pravij07/projectbackend:${{ github.sha }}
+          build-args: |
+            JWT_KEY=${{ secrets.JWT_KEY }}
+            ISSUER=${{ secrets.ISSUER }}
+            AUDIENCE=${{ secrets.AUDIENCE }}
+            REDIS_CONNECTIONSTRING=${{ secrets.REDIS_CONNECTIONSTRING }}
+            REDIS_INSTANCENAME=${{ secrets.REDIS_INSTANCENAME }}
+            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+            EMAIL_LOGIN=${{ secrets.EMAIL_LOGIN }}
+            EMAIL_KEY=${{ secrets.EMAIL_KEY }}
+            PROJECTID=${{ secrets.PROJECTID }}
+            CREDENTIALSPATH=/app/firebase-service-account.json
+            BACKBLAZESETTINGS_ACCESSKEY=${{ secrets.BACKBLAZESETTINGS_ACCESSKEY }}
+            BACKBLAZESETTINGS_SECRETKEY=${{ secrets.BACKBLAZESETTINGS_SECRETKEY }}
+            BACKBLAZESETTINGS_ENDPOINTURL=${{ secrets.BACKBLAZESETTINGS_ENDPOINTURL }}
+            BACKBLAZESETTINGS_BUCKETNAME=${{ secrets.BACKBLAZESETTINGS_BUCKETNAME }}
+      
       - name: Deploy to Production Server
         run: |
-          echo "========================================="
-          echo "🚀 Deploying to PRODUCTION Environment"
-          echo "========================================="
-          echo "⚠️  PRODUCTION DEPLOYMENT - APPROVED"
-          echo "========================================="
-          echo "Branch: master"
-          echo "Commit: ${{ github.sha }}"
-          echo "Author: ${{ github.actor }}"
-          echo "========================================="
-          
-          # ========================================
-          # ADD YOUR PRODUCTION DEPLOYMENT COMMANDS
-          # ========================================
-          
-          # Example for Docker:
-          # docker build -t myapp:latest .
-          # docker push myapp:latest
-          # ssh production-server "docker pull myapp:latest && docker-compose up -d"
-          
-          # Example for Azure:
-          # az webapp deploy --resource-group myapp --name myapp-prod --src-path ./publish
-          
-          # Example for AWS:
-          # aws s3 sync ./publish s3://myapp-production/
-          
-          echo "========================================="
-          echo "✅ Production deployment complete!"
-          echo "🌐 Production URL: https://yourdomain.com"
-          echo "========================================="
+          echo "Deploying Docker image to production server"
+          # ✅ Use docker-compose.prod.yml explicitly
+          ssh user@production-server "docker pull pravij07/projectbackend:production && docker-compose -f docker-compose.prod.yml up -d backend-production"
+          echo "Production deployment complete"
       
       - name: Verify production deployment
         run: |
-          echo "🔍 Verifying production deployment..."
-          # curl -f https://yourdomain.com/health || exit 1
-          echo "✅ Production verification passed"
-      
-      - name: Send deployment notification
-        if: success()
-        run: |
-          echo "📧 Sending deployment notification..."
-          echo "✅ Production deployment successful!"
-          # Add email/slack/discord notification here
+          curl -f https://yourdomain.com/health || exit 1
+          echo "Production verification passed"
