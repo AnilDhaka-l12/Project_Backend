@@ -2,71 +2,80 @@ name: Deploy to Staging
 
 on:
   push:
-    branches: [main]
+    branches: [main]   # triggers only on pushes to main
 
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
-      
+
       - name: Restore dependencies
         run: dotnet restore
-      
+
       - name: Build
         run: dotnet build --no-restore --configuration Release
-      
+
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
-      
+
       - name: Publish application
         run: dotnet publish --configuration Release --output ./publish
-      
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: staging-app
           path: ./publish
           retention-days: 3
-      
+
+      # Step 8: Login to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+          
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            pravij07/projectbackend:staging
+            pravij07/projectbackend:${{ github.sha }}
+          build-args: |
+            JWT_KEY=${{ secrets.JWT_KEY }}
+            ISSUER=${{ secrets.ISSUER }}
+            AUDIENCE=${{ secrets.AUDIENCE }}
+            REDIS_CONNECTIONSTRING=${{ secrets.REDIS_CONNECTIONSTRING }}
+            REDIS_INSTANCENAME=${{ secrets.REDIS_INSTANCENAME }}
+            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+            EMAIL_LOGIN=${{ secrets.EMAIL_LOGIN }}
+            EMAIL_KEY=${{ secrets.EMAIL_KEY }}
+            PROJECTID=${{ secrets.PROJECTID }}
+            CREDENTIALSPATH=/app/firebase-service-account.json
+            BACKBLAZESETTINGS_ACCESSKEY=${{ secrets.BACKBLAZESETTINGS_ACCESSKEY }}
+            BACKBLAZESETTINGS_SECRETKEY=${{ secrets.BACKBLAZESETTINGS_SECRETKEY }}
+            BACKBLAZESETTINGS_ENDPOINTURL=${{ secrets.BACKBLAZESETTINGS_ENDPOINTURL }}
+            BACKBLAZESETTINGS_BUCKETNAME=${{ secrets.BACKBLAZESETTINGS_BUCKETNAME }}
+
       - name: Deploy to Staging Server
         run: |
-          echo "========================================="
-          echo "📦 Deploying to STAGING Environment"
-          echo "========================================="
-          echo "Branch: main"
-          echo "Commit: ${{ github.sha }}"
-          echo "Author: ${{ github.actor }}"
-          echo "========================================="
-          
-          # ========================================
-          # ADD YOUR DEPLOYMENT COMMANDS HERE
-          # ========================================
-          
-          # Example for Docker:
-          # docker build -t myapp:staging .
-          # docker push myapp:staging
-          # ssh staging-server "docker pull myapp:staging && docker-compose up -d"
-          
-          # Example for Azure:
-          # az webapp deploy --resource-group myapp --name myapp-staging --src-path ./publish
-          
-          # Example for AWS:
-          # aws s3 sync ./publish s3://myapp-staging/
-          
-          echo "========================================="
-          echo "✅ Staging deployment complete!"
-          echo "🌐 Staging URL: https://staging.yourdomain.com"
-          echo "========================================="
-      
+          echo "Deploying Docker image to staging server"
+          ssh user@staging-server "docker pull pravij07/projectbackend:staging && docker-compose -f docker-compose.prod.yml up -d backend-staging"
+          echo "Staging deployment complete"
+
       - name: Run smoke tests on staging
         run: |
-          echo "🧪 Running smoke tests..."
-          # curl -f https://staging.yourdomain.com/health || exit 1
-          echo "✅ Smoke tests passed"
+          curl -f https://staging.yourdomain.com/health || exit 1
+          echo "Smoke tests passed"
