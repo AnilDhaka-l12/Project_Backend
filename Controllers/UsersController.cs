@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectBackend.Attributes;
+using ProjectBackend.Model.Dto;
 using ProjectBackend.Model.Entities;
 using ProjectBackend.Model.RequestModel;
 using ProjectBackend.Services.IServices;
@@ -21,13 +22,34 @@ public class UsersController : ControllerBase
         _userValidator = userValidator;
     }
 
-    [HttpGet]
+    // GET: api/users - Returns all users (non-paginated - keep for backward compatibility)
+    [HttpGet("all")]
     [AdminAuthorize]
     [CheckJwtBlacklist]
-    public async Task<IActionResult> GetUsers()
+    public async Task<IActionResult> GetAllUsers()
     {
         var users = await _userService.GetAllUsersAsync();
         return Ok(users);
+    }
+
+    // GET: api/users?pageNumber=1&pageSize=10&searchTerm=john&sortBy=email&sortDescending=false&organization=tech&isActive=true
+    [HttpGet]
+    [AdminAuthorize]
+    [CheckJwtBlacklist]
+    public async Task<IActionResult> GetUsers([FromQuery] UserQueryParams queryParams)
+    {
+        var result = await _userService.GetUsersWithFiltersAsync(queryParams);
+        return Ok(result);
+    }
+
+    // GET: api/users/paginated?pageNumber=1&pageSize=10
+    [HttpGet("paginated")]
+    [AdminAuthorize]
+    [CheckJwtBlacklist]
+    public async Task<IActionResult> GetUsersPaginated([FromQuery] PaginationParams paginationParams)
+    {
+        var result = await _userService.GetUsersPaginatedAsync(paginationParams);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -54,22 +76,34 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
 
+    // GET: api/users/organization/{organization}?pageNumber=1&pageSize=10
     [HttpGet("organization/{organization}")]
     [AdminAuthorize]
     [CheckJwtBlacklist]
-    public async Task<IActionResult> GetUsersByOrganization(string organization)
+    public async Task<IActionResult> GetUsersByOrganization(string organization, [FromQuery] PaginationParams paginationParams)
     {
-        var users = await _userService.GetUsersByOrganizationAsync(organization);
-        return Ok(users);
+        var result = await _userService.GetUsersByOrganizationPaginatedAsync(organization, paginationParams);
+        return Ok(result);
     }
 
+    // GET: api/users/active?pageNumber=1&pageSize=10
     [HttpGet("active")]
     [AdminAuthorize]
     [CheckJwtBlacklist]
-    public async Task<IActionResult> GetActiveUsers()
+    public async Task<IActionResult> GetActiveUsers([FromQuery] PaginationParams paginationParams)
     {
-        var users = await _userService.GetActiveUsersAsync();
-        return Ok(users);
+        var result = await _userService.GetActiveUsersPaginatedAsync(paginationParams);
+        return Ok(result);
+    }
+
+    // GET: api/users/filter?pageNumber=1&pageSize=10&organization=tech&isActive=true&searchTerm=john
+    [HttpGet("filter")]
+    [AdminAuthorize]
+    [CheckJwtBlacklist]
+    public async Task<IActionResult> GetUsersWithFilters([FromQuery] UserQueryParams queryParams)
+    {
+        var result = await _userService.GetUsersWithFiltersAsync(queryParams);
+        return Ok(result);
     }
 
     [HttpPost]
