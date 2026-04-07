@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using StackExchange.Redis;
 
-namespace projectBackend.Config.Redis;
+namespace ProjectBackend.Config.Redis;
 
 /// <summary>
 /// Redis health check logic

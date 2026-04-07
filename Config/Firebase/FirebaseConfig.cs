@@ -1,6 +1,6 @@
 using Google.Cloud.Firestore;
 
-namespace projectBackend.Config.Firebase;
+namespace ProjectBackend.Config.Firebase;
 
 public static class FirebaseConfig
 {

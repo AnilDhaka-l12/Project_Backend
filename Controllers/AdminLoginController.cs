@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using projectBackend.Model.RequestModel;
-using projectBackend.Services.IServices;
+using ProjectBackend.Model.RequestModel;
+using ProjectBackend.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
-using projectBackend.Attributes;
+using ProjectBackend.Attributes;
 using FluentValidation;
 
-namespace projectBackend.Controllers;
+namespace ProjectBackend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
