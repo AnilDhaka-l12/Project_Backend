@@ -9,25 +9,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout code
       - uses: actions/checkout@v3
 
+      # 2. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
 
+      # 3. Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
+      # 4. Build project
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
+      # 5. Run tests
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
 
+      # 6. Publish application
       - name: Publish application
         run: dotnet publish --configuration Release --output ./publish
 
+      # 7. Upload artifacts (optional)
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -35,15 +42,16 @@ jobs:
           path: ./publish
           retention-days: 3
 
-      # Explicit Docker login using PAT
+      # 8. Docker login using PAT
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
+      # 9. Verify Docker login
       - name: Verify Docker login
         run: docker info
 
-      # Build and push Docker image
+      # 10. Build and push Docker image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
@@ -51,8 +59,8 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            pravij07/projectbackend:staging
-            pravij07/projectbackend:${{ github.sha }}
+            pravij7/projectbackend:staging
+            pravij7/projectbackend:${{ github.sha }}
           build-args: |
             JWT_KEY=${{ secrets.JWT_KEY }}
             ISSUER=${{ secrets.ISSUER }}
@@ -69,14 +77,14 @@ jobs:
             BACKBLAZESETTINGS_ENDPOINTURL=${{ secrets.BACKBLAZESETTINGS_ENDPOINTURL }}
             BACKBLAZESETTINGS_BUCKETNAME=${{ secrets.BACKBLAZESETTINGS_BUCKETNAME }}
 
-      # Deploy to staging server
+      # 11. Deploy Docker image to staging server
       - name: Deploy to Staging Server
         run: |
           echo "Deploying Docker image to staging server"
           ssh user@staging-server "docker pull pravij7/projectbackend:staging && docker-compose -f docker-compose.prod.yml up -d backend-staging"
           echo "Staging deployment complete"
 
-      # Run smoke tests
+      # 12. Run smoke tests
       - name: Run smoke tests on staging
         run: |
           curl -f https://staging.yourdomain.com/health || exit 1
