@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace projectBackend.Config.MailKit
+namespace ProjectBackend.Config.MailKit
 {
     public class MailService
     {

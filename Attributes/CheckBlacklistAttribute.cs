@@ -1,4 +1,4 @@
-namespace projectBackend.Attributes;
+namespace ProjectBackend.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class CheckJwtBlacklistAttribute : Attribute

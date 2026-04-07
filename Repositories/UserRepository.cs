@@ -1,8 +1,8 @@
 using Google.Cloud.Firestore;
-using projectBackend.Model.Entities;
-using projectBackend.Repositories.Interfaces;
+using ProjectBackend.Model.Entities;
+using ProjectBackend.Repositories.Interfaces;
 
-namespace projectBackend.Repositories;
+namespace ProjectBackend.Repositories;
 
 public class UserRepository : IUserRepository
 {

@@ -1,9 +1,12 @@
 using FluentValidation;
-using projectBackend.Config.Firebase;
-using projectBackend.Config.Redis;
-using projectBackend.Validators;
+using ProjectBackend.Config.Firebase;
+using ProjectBackend.Config.Redis;
+using ProjectBackend.Validators;
+using ProjectBackend.Services;
+using ProjectBackend.Services.IServices;
+using ProjectBackend.Config.Backblaze;
 
-namespace projectBackend.Extensions;
+namespace ProjectBackend.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -33,6 +36,9 @@ public static class ServiceCollectionExtensions
         // Register Repositories and Services
         services.RegisterRepositories();
         services.RegisterServices();
+
+        // Register FileLu configuration
+        services.RegisterBackblaze(configuration);
 
         return services;
     }

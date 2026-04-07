@@ -1,8 +1,8 @@
-using projectBackend.Model.Entities;
-using projectBackend.Repositories.Interfaces;
-using projectBackend.Services.IServices;
+using ProjectBackend.Model.Entities;
+using ProjectBackend.Repositories.Interfaces;
+using ProjectBackend.Services.IServices;
 
-namespace projectBackend.Services;
+namespace ProjectBackend.Services;
 
 public class UserService : IUserService
 {

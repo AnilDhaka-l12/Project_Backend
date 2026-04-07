@@ -1,4 +1,4 @@
-namespace projectBackend.Services.IServices;
+namespace ProjectBackend.Services.IServices;
 
 public interface IRedisCacheService
 {

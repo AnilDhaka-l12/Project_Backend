@@ -1,6 +1,6 @@
-using projectBackend.Model.Entities;
+using ProjectBackend.Model.Entities;
 
-namespace projectBackend.Services.IServices;
+namespace ProjectBackend.Services.IServices;
 
 public interface IUserService
 {

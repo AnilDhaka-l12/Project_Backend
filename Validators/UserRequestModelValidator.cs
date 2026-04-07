@@ -1,8 +1,8 @@
 using FluentValidation;
-using projectBackend.Model.RequestModel;
+using ProjectBackend.Model.RequestModel;
 using System.Text.RegularExpressions;
 
-namespace projectBackend.Validators;
+namespace ProjectBackend.Validators;
 
 public class UserRequestModelValidator : AbstractValidator<UserRequestModel>
 {

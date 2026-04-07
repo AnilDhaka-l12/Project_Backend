@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace projectBackend.Attributes;
+namespace ProjectBackend.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public class AdminAuthorizeAttribute : AuthorizeAttribute

@@ -1,4 +1,4 @@
-namespace projectBackend.Model;
+namespace ProjectBackend.Model;
 
 public class PushNotification
 {
