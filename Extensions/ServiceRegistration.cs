@@ -5,6 +5,7 @@ using ProjectBackend.Validators;
 using ProjectBackend.Services;
 using ProjectBackend.Services.IServices;
 using ProjectBackend.Config.Backblaze;
+using ProjectBackend.Config.Licensing;
 
 namespace ProjectBackend.Extensions;
 
@@ -39,6 +40,8 @@ public static class ServiceCollectionExtensions
 
         // Register FileLu configuration
         services.RegisterBackblaze(configuration);
+
+        ExcelLicenseConfig.Initialize();
 
         return services;
     }

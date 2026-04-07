@@ -32,25 +32,10 @@ jobs:
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Docker Image (SECURE - NO SECRETS)
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
           push: true
           tags: pravij7/projectbackend:production
-          build-args: |
-            JWT_KEY=${{ secrets.JWT_KEY }}
-            ISSUER=${{ secrets.ISSUER }}
-            AUDIENCE=${{ secrets.AUDIENCE }}
-            REDIS_CONNECTIONSTRING=${{ secrets.REDIS_CONNECTIONSTRING }}
-            REDIS_INSTANCENAME=${{ secrets.REDIS_INSTANCENAME }}
-            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
-            EMAIL_LOGIN=${{ secrets.EMAIL_LOGIN }}
-            EMAIL_KEY=${{ secrets.EMAIL_KEY }}
-            PROJECTID=${{ secrets.PROJECTID }}
-            CREDENTIALSPATH=/app/firebase-service-account.json
-            BACKBLAZESETTINGS_ACCESSKEY=${{ secrets.BACKBLAZESETTINGS_ACCESSKEY }}
-            BACKBLAZESETTINGS_SECRETKEY=${{ secrets.BACKBLAZESETTINGS_SECRETKEY }}
-            BACKBLAZESETTINGS_ENDPOINTURL=${{ secrets.BACKBLAZESETTINGS_ENDPOINTURL }}
-            BACKBLAZESETTINGS_BUCKETNAME=${{ secrets.BACKBLAZESETTINGS_BUCKETNAME }}
