@@ -1,11 +1,11 @@
-name: Deploy to Staging
+name: Build and Push Docker Image to Docker Hub
 
 on:
   push:
     branches: [main]
 
 jobs:
-  deploy-staging:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +22,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. Build project
+      # 4. Build
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
@@ -34,24 +34,12 @@ jobs:
       - name: Publish application
         run: dotnet publish --configuration Release --output ./publish
 
-      # 7. Upload artifacts (optional)
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: staging-app
-          path: ./publish
-          retention-days: 3
-
-      # 8. Docker login using PAT
+      # 7. Login to Docker Hub
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # 9. Verify Docker login
-      - name: Verify Docker login
-        run: docker info
-
-      # 10. Build and push Docker image
+      # 8. Build and Push Docker Image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
@@ -76,16 +64,3 @@ jobs:
             BACKBLAZESETTINGS_SECRETKEY=${{ secrets.BACKBLAZESETTINGS_SECRETKEY }}
             BACKBLAZESETTINGS_ENDPOINTURL=${{ secrets.BACKBLAZESETTINGS_ENDPOINTURL }}
             BACKBLAZESETTINGS_BUCKETNAME=${{ secrets.BACKBLAZESETTINGS_BUCKETNAME }}
-
-      # 11. Deploy Docker image to staging server
-      - name: Deploy to Staging Server
-        run: |
-          echo "Deploying Docker image to staging server"
-          ssh user@staging-server "docker pull pravij7/projectbackend:staging && docker-compose -f docker-compose.prod.yml up -d backend-staging"
-          echo "Staging deployment complete"
-
-      # 12. Run smoke tests
-      - name: Run smoke tests on staging
-        run: |
-          curl -f https://staging.yourdomain.com/health || exit 1
-          echo "Smoke tests passed"
