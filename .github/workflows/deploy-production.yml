@@ -9,48 +9,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repo
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # 1. Checkout code
+      - uses: actions/checkout@v3
 
-      # Step 2: Setup .NET
+      # 2. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
 
-      # Step 3: Restore dependencies
+      # 3. Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # Step 4: Build
+      # 4. Build
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      # Step 5: Run tests
+      # 5. Run tests
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
 
-      # Step 6: Publish application
+      # 6. Publish application
       - name: Publish application
         run: dotnet publish --configuration Release --output ./publish
 
-      # Step 7: Upload artifacts (optional)
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-app
-          path: ./publish
-          retention-days: 7
-
-      # Step 8: Login to Docker Hub
+      # 7. Login to Docker Hub
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # Step 9: Build and push Docker image
+      # 8. Build and Push Docker Image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
