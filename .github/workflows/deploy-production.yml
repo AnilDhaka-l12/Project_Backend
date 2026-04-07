@@ -9,46 +9,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
       - uses: actions/checkout@v3
 
-      # 2. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
 
-      # 3. Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. Build
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      # 5. Run tests
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
 
-      # 6. Publish application
       - name: Publish application
         run: dotnet publish --configuration Release --output ./publish
 
-      # 7. Login to Docker Hub
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # 8. Build and Push Docker Image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
           push: true
-          tags: |
-            pravij07/projectbackend:production
-            pravij07/projectbackend:${{ github.sha }}
+          tags: pravij7/projectbackend:production
           build-args: |
             JWT_KEY=${{ secrets.JWT_KEY }}
             ISSUER=${{ secrets.ISSUER }}
