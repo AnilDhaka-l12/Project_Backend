@@ -73,7 +73,7 @@ jobs:
       - name: Deploy to Staging Server
         run: |
           echo "Deploying Docker image to staging server"
-          ssh user@staging-server "docker pull pravij07/projectbackend:staging && docker-compose -f docker-compose.prod.yml up -d backend-staging"
+          ssh user@staging-server "docker pull pravij7/projectbackend:staging && docker-compose -f docker-compose.prod.yml up -d backend-staging"
           echo "Staging deployment complete"
 
       # Run smoke tests
