@@ -8,9 +8,11 @@ namespace ProjectBackend.Services
 {
     public class FileDownloadService : IFileDownloadService
     {
+        private readonly IConfiguration _configuration;
         private readonly ILogger<FileDownloadService> _logger;
         public FileDownloadService(IConfiguration configuration, ILogger<FileDownloadService> logger)
         {
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -19,7 +21,7 @@ namespace ProjectBackend.Services
 
             return new FileDownloadResponseDto
             {
-                DownloadUrl = GitHubUrlHelper.GetDownloadUrl(fileKey),
+                DownloadUrl = GitHubUrlHelper.GetDownloadUrl(_configuration, fileKey),
                 ExpiresInMinutes = expiryMinutes,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes),
                 FileKey = fileKey,
