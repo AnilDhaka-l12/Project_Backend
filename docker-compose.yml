@@ -34,7 +34,6 @@ services:
       - REDIS__CONNECTIONSTRING=redis:6379,abortConnect=False
       - REDIS__INSTANCENAME=MyAppCache
       - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-service-account.json
-      # Remove Backblaze environment variables - use appsettings.json instead
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     depends_on:
