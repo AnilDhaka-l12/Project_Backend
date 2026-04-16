@@ -4,7 +4,6 @@ using ProjectBackend.Config.Redis;
 using ProjectBackend.Validators;
 using ProjectBackend.Services;
 using ProjectBackend.Services.IServices;
-using ProjectBackend.Config.Backblaze;
 
 namespace ProjectBackend.Extensions;
 
@@ -36,9 +35,6 @@ public static class ServiceCollectionExtensions
         // Register Repositories and Services
         services.RegisterRepositories();
         services.RegisterServices();
-
-        // Register FileLu configuration
-        services.RegisterBackblaze(configuration);
 
         return services;
     }
