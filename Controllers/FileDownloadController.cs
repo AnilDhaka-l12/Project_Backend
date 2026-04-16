@@ -7,7 +7,6 @@ namespace ProjectBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // keep this if middleware handles auth
     public class FileDownloadController : ControllerBase
     {
         private readonly IFileDownloadService _fileDownloadService;
@@ -62,74 +61,6 @@ namespace ProjectBackend.Controllers
                 {
                     Success = false,
                     Message = "An error occurred while generating download link",
-                    Error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Check if a file exists
-        /// </summary>
-        [HttpGet("exists/{fileKey}")]
-        public async Task<ActionResult<ApiResponse<bool>>> CheckFileExists(string fileKey)
-        {
-            try
-            {
-                var exists = await _fileDownloadService.FileExistsAsync(fileKey);
-
-                return Ok(new ApiResponse<bool>
-                {
-                    Success = true,
-                    Message = exists ? "File exists" : "File not found",
-                    Data = exists
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error checking file existence for {FileKey}", fileKey);
-                return StatusCode(500, new ApiResponse<bool>
-                {
-                    Success = false,
-                    Message = "An error occurred",
-                    Error = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Get file metadata
-        /// </summary>
-        [HttpGet("info/{fileKey}")]
-        public async Task<ActionResult<ApiResponse<FileInfoDto>>> GetFileInfo(string fileKey)
-        {
-            try
-            {
-                var metadata = await _fileDownloadService.GetFileMetadataAsync(fileKey);
-
-                if (metadata == null)
-                {
-                    return NotFound(new ApiResponse<FileInfoDto>
-                    {
-                        Success = false,
-                        Message = "File not found",
-                        Error = $"File with key {fileKey} does not exist"
-                    });
-                }
-
-                return Ok(new ApiResponse<FileInfoDto>
-                {
-                    Success = true,
-                    Message = "File metadata retrieved successfully",
-                    Data = metadata
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting file info for {FileKey}", fileKey);
-                return StatusCode(500, new ApiResponse<FileInfoDto>
-                {
-                    Success = false,
-                    Message = "An error occurred",
                     Error = ex.Message
                 });
             }
