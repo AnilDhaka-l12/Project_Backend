@@ -1,24 +1,20 @@
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace ProjectBackend.Helper;
 
 public static class GitHubUrlHelper
 {
-    private static readonly IConfiguration _config;
-    
-    static GitHubUrlHelper()
+    public static string GetDownloadUrl(IConfiguration configuration, string filename)
     {
-        _config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
-    }
-    
-    public static string GetDownloadUrl(string filename)
-    {
-        var owner = _config["GitHub:Owner"];
-        var repo = _config["GitHub:Repo"];
-        var baseUrl = _config["GitHub:BaseUrl"];
-        var tag = _config["GitHub:DefaultTag"];
+        var owner = configuration["GitHub:Owner"] 
+            ?? throw new InvalidOperationException("GitHub:Owner not configured");
+            
+        var repo = configuration["GitHub:Repo"] 
+            ?? throw new InvalidOperationException("GitHub:Repo not configured");
+            
+        var baseUrl = configuration["GitHub:BaseUrl"] ?? "https://github.com";
+        var tag = configuration["GitHub:DefaultTag"] ?? "latest";
         
         return $"{baseUrl}/{owner}/{repo}/releases/{tag}/download/{filename}";
     }
