@@ -6,6 +6,7 @@ using ProjectBackend.Model.Entities;
 using ProjectBackend.Model.RequestModel;
 using ProjectBackend.Services.IServices;
 using FluentValidation;
+using System.Text.RegularExpressions;
 
 namespace ProjectBackend.Controllers;
 
@@ -149,7 +150,6 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [AllowAnonymous]
     [CheckJwtBlacklist]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] UserRequestModel request)
     {
@@ -193,5 +193,36 @@ public class UsersController : ControllerBase
             return NotFound(new { message = $"User with ID {id} not found" });
 
         return NoContent();
+    }
+
+    [HttpGet("/checkUser/{email}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> UserExists(string email)
+    {
+        string pattern = @"^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$";
+        if (!Regex.IsMatch(email, pattern))
+        {
+            return StatusCode(401, new { message = $"Please enter the valid email address" });
+        }
+        try
+        {
+            var UserExists = await _userService.EmailExistsAsync(email);
+            if (!UserExists || UserExists == false)
+            {
+                return NotFound(new { message = UserExists });
+            }
+            else
+            {
+                return StatusCode(200, new { message = UserExists });
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred", error = ex.Message });
+        }
     }
 }

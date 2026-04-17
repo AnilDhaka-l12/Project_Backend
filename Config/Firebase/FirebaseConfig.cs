@@ -10,42 +10,33 @@ public static class FirebaseConfig
         var projectId = configuration["Firebase:ProjectId"]
             ?? throw new InvalidOperationException("Firebase ProjectId not found");
 
-        // 1. Try environment variable first (Cloud Run)
-        var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_JSON");
-
-        if (!string.IsNullOrEmpty(firebaseJson))
-        {
-            Console.WriteLine("✅ Using Firebase credentials from ENV variable");
-
-            var credential = GoogleCredential.FromJson(firebaseJson);
-
-            return new FirestoreDbBuilder
-            {
-                ProjectId = projectId,
-                Credential = credential
-            }.Build();
-        }
-
-        // 2. Fallback to file (local Docker / dev)
+        // ✅ ONLY SOURCE: configuration (appsettings + env override)
         var credentialsPath = configuration["Firebase:CredentialsPath"];
 
-        if (!string.IsNullOrEmpty(credentialsPath))
+        if (string.IsNullOrWhiteSpace(credentialsPath))
         {
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), credentialsPath);
-
-            if (File.Exists(fullPath))
-            {
-                Console.WriteLine("✅ Using Firebase credentials from file");
-
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", fullPath);
-
-                return FirestoreDb.Create(projectId);
-            }
+            throw new InvalidOperationException("Firebase credentials path not found in configuration");
         }
 
-        // 3. Optional: fallback to default credentials (Cloud Run IAM)
-        Console.WriteLine("⚠️ Falling back to default Google credentials");
+        // Allow both relative + absolute paths
+        var fullPath = Path.IsPathRooted(credentialsPath)
+            ? credentialsPath
+            : Path.Combine(AppContext.BaseDirectory, credentialsPath);
 
-        return FirestoreDb.Create(projectId);
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException($"Firebase credentials file not found: {fullPath}");
+        }
+
+        Console.WriteLine("✅ Using Firebase credentials file");
+        Console.WriteLine($"📁 Path: {fullPath}");
+
+        var credential = GoogleCredential.FromFile(fullPath);
+
+        return new FirestoreDbBuilder
+        {
+            ProjectId = projectId,
+            Credential = credential
+        }.Build();
     }
 }
