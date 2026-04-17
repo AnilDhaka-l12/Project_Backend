@@ -29,7 +29,7 @@ app.MapControllers();
 // ------------------------
 // Listen on Cloud Run port
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5082"; // fallback for local
-app.Urls.Add($"http://*:{port}"); 
+app.Urls.Add($"http://*:{port}");
 // ------------------------
 
 app.Run();

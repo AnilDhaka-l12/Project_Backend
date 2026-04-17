@@ -14,7 +14,8 @@ public interface IUserService
     Task<User> CreateUserAsync(User user);
     Task<User?> UpdateUserAsync(string id, User user);
     Task<bool> DeleteUserAsync(string id);
-    
+    Task<bool> EmailExistsAsync(string email);
+
     // New paginated methods
     Task<PaginatedResult<User>> GetUsersPaginatedAsync(PaginationParams paginationParams);
     Task<PaginatedResult<User>> GetUsersByOrganizationPaginatedAsync(string organization, PaginationParams paginationParams);

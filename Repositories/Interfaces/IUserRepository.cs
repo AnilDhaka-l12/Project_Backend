@@ -16,7 +16,7 @@ public interface IUserRepository
     Task<bool> DeleteAsync(string id);
     Task<bool> ExistsAsync(string id);
     Task<bool> EmailExistsAsync(string email, string? excludeId = null);
-    
+
     // New paginated methods
     Task<PaginatedResult<User>> GetPaginatedAsync(PaginationParams paginationParams);
     Task<PaginatedResult<User>> GetPaginatedByOrganizationAsync(string organization, PaginationParams paginationParams);

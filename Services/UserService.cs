@@ -85,4 +85,10 @@ public class UserService : IUserService
     {
         return await _userRepository.GetPaginatedWithFiltersAsync(queryParams);
     }
+
+
+    public async Task<bool> EmailExistsAsync(string email)
+    {
+        return await _userRepository.EmailExistsAsync(email);
+    }
 }
