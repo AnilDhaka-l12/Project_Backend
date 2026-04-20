@@ -13,9 +13,14 @@ public static class GitHubUrlHelper
         var repo = configuration["GitHub:Repo"]
             ?? throw new InvalidOperationException("GitHub:Repo not configured");
 
-        var baseUrl = configuration["GitHub:BaseUrl"] ?? "https://github.com";
         var tag = configuration["GitHub:DefaultTag"] ?? "latest";
 
-        return $"{baseUrl}/{owner}/{repo}/releases/{tag}/download/{filename}";
+        // Fix: For "latest" tag, use a different URL pattern
+        if (tag == "latest")
+        {
+            return $"https://github.com/{owner}/{repo}/releases/latest/download/{filename}";
+        }
+        
+        return $"https://github.com/{owner}/{repo}/releases/download/{tag}/{filename}";
     }
 }
