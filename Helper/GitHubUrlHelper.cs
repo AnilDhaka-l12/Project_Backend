@@ -7,6 +7,12 @@ public static class GitHubUrlHelper
 {
     public static string GetDownloadUrl(IConfiguration configuration, string version, string platform)
     {
+        // Validate that version is not null or empty
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            throw new ArgumentException("Version/Tag cannot be null or empty", nameof(version));
+        }
+
         // Determine which config section to use based on platform
         var configSection = platform?.ToLower() == "windows" ? "GitHub" : "GitHubLinux";
 
@@ -16,13 +22,14 @@ public static class GitHubUrlHelper
         var repo = configuration[$"{configSection}:Repo"]
             ?? throw new InvalidOperationException($"{configSection}:Repo not configured");
 
-        var tag = configuration[$"{configSection}:DefaultTag"] ?? "latest";
-
         var fileName = configuration[$"{configSection}:fileName"]
             ?? throw new InvalidOperationException($"{configSection}:fileName not configured");
 
+        // Use the passed version parameter (not the config's DefaultTag)
+        var tag = version;
+
         // For "latest" tag
-        if (tag == "latest")
+        if (tag.Equals("latest", StringComparison.OrdinalIgnoreCase))
         {
             return $"https://github.com/{owner}/{repo}/releases/latest/download/{fileName}";
         }
