@@ -25,14 +25,14 @@ namespace ProjectBackend.Controllers
         /// </summary>
         [HttpGet("link/{fileKey}")]
         public async Task<ActionResult<ApiResponse<FileDownloadResponseDto>>> GetDownloadLink(
-            string fileKey,
+            string fileKey, string platform,
             [FromQuery] int expiryMinutes = 5)
         {
             try
             {
                 expiryMinutes = Math.Clamp(expiryMinutes, 1, 60);
 
-                var result = await _fileDownloadService.GetSecureDownloadLinkAsync(fileKey, expiryMinutes);
+                var result = await _fileDownloadService.GetSecureDownloadLinkAsync(fileKey, platform, expiryMinutes);
 
                 _logger.LogInformation(
                     "Download link generated for {FileKey}, expires in {ExpiryMinutes} minutes",
