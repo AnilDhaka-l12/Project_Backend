@@ -8,6 +8,6 @@ namespace ProjectBackend.Services.IServices
         /// <summary>
         /// Gets full download response with URL and metadata
         /// </summary>
-        Task<FileDownloadResponseDto> GetSecureDownloadLinkAsync(string fileKey, int expiryMinutes = 5);
+        Task<FileDownloadResponseDto> GetSecureDownloadLinkAsync(string fileKey, string platfrom, int expiryMinutes = 5);
     }
 }
